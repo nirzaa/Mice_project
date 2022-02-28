@@ -30,4 +30,4 @@ This command will save inside `./data/dump_files/Aluminum/pure_liquid/900/20/10_
 ## step 5: running the neural net
 
 Now everything is ready and we have to run the neural net on our data.
-We will run `python ./src/mice/main/sweep_func.py --T=900` which will start to learn the mi for the number of boxes: 20 and the (10,10,10)
+We will run `python ./src/mice/main/sweep_func.py --T=900` which will start to learn the mi for the data we will declare inside this file, namely: for the number of boxes: 20 and the (10,10,10)
