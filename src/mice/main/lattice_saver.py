@@ -16,11 +16,9 @@ def lat_saver(T, num_samples, samples_per_snapshot, num_boxes, limit):
     temporal_combinations = list(combinations_with_replacement([2 << expo for expo in range(0, my_root)], 3))
     temporal_combinations.sort(key=lambda x: math.prod(x))
     print('Our combinations are:')
-    # temporal_combinations = [i for i in my_combinations if math.prod(i) < limit]
-    # my_combinations = temporal_combinations
+
     my_combinations = list()
     for i in temporal_combinations:
-        # if (i[0] >= 2 and i [1] >= 2 and i [2] >= 2) and (i[0] < 1024 and i [1] < 1024 and i [2] < 1024):
         if (i[0] == 20 and i [1] == 20 and i [2] == 20):
             my_combinations.append(i)
     my_combinations.append((10,10,10))
@@ -99,7 +97,6 @@ def lat_saver(T, num_samples, samples_per_snapshot, num_boxes, limit):
         with h5py.File(os.path.join(saved_directory, 'data.h5'), "w") as hf:
             hf.create_dataset('dataset_1', data=np.array(lattices))
     
-    # saved_directory = os.path.join('./data', f'{num_boxes}')
     with open(os.path.join(saved_directory, 'explain'), 'w') as f:
         f.write(f'Metadata regarding the data:\n')
         f.write('='*30)

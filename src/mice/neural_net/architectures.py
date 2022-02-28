@@ -157,11 +157,7 @@ class Sandnet3d(nn.Module):
         self.fc2 = nn.Linear(int(input_size/2), 1)
 
     def forward(self, data):
-        # output = torch.unsqueeze(data, 1)
         output = F.relu(self.layer1(data))
-        # output = F.relu(self.layer2(output))
-        # output = self.layer3(output)
-        # output = self.drop_out(output)
         output = output.reshape(output.size(0), -1)
         output = self.fc1(output)
         output = F.relu(output)

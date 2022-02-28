@@ -48,7 +48,6 @@ def box_runner(num_boxes, box_frac, idx, max_epochs, batch_size, freq_print, gen
     x_size = list_ising[0].shape[1]
     y_size = list_ising[0].shape[2]
     z_size = list_ising[0].shape[3]
-    # input_size = x_size * y_size * z_size
     input_size = int(8 * ((x_size-2)/1+1) * ((y_size-2)/1+1) * ((z_size-2)/1+1))
     model = mice.mi_model(genom=genom, n_epochs=n_epochs, max_epochs=max_epochs, input_size=input_size)
     optimizer = Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
@@ -111,9 +110,6 @@ def box_runner(num_boxes, box_frac, idx, max_epochs, batch_size, freq_print, gen
     return mi_num_box_dependant[-1]
 
 def box_caller():
-    # box_sizes = [4, 6, 10, 14, 18]
-    # box_sizes = [4, 6, 18, 25]
-    # box_sizes = list(np.linspace(4, 80, 77, dtype='int'))
     box_sizes = list(np.arange(4, 80, 2, dtype='int'))
 
     mi = np.zeros(len(box_sizes))

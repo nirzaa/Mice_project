@@ -41,7 +41,6 @@ def ising_box_runner(idx, T, max_epochs, batch_size, freq_print, genom, lr, weig
     mi_num_box_dependant = []
     mi_num_box_dependant_valid = []
         
-    # list_ising = mice.ising_runner(kT=kT, R=R)
     with h5py.File(os.path.join('./', 'ising_h5py', f'ising_data_64_{T}.h5'), 'r') as f:
         n1 = np.array(f.get('dataset_1'))
         n1 = np.expand_dims(n1, axis=1)
@@ -63,15 +62,12 @@ def ising_box_runner(idx, T, max_epochs, batch_size, freq_print, genom, lr, weig
     for epoch in tqdm(range(int(n_epochs))):
         place = random.sample(range(len(list_ising)), k=int(num_samples))
         lattices = np.array(list_ising)[place]
-        # lattices = mice.part_lattices(lattices, x_size, y_size, z_size, R)
         left_lattices, right_lattices = mice.lattice_splitter(lattices=lattices, axis=axis)
         joint_lattices = np.concatenate((left_lattices, right_lattices), axis=axis + 1)
         right_lattices_random = right_lattices.copy()
         R.shuffle(right_lattices_random)
         product_lattices = np.concatenate((left_lattices, right_lattices_random), axis=axis + 1)
-        # joint_lattices, joint_valid, product_lattices, product_valid = train_test_split(joint_lattices, product_lattices,
-        #                                                                                 test_size=0.2, random_state=42)
-
+        
         joint_lattices, joint_valid, product_lattices, product_valid = train_test_split(joint_lattices, product_lattices,
                                                                                         test_size=0.2, random_state=42)
 
@@ -91,8 +87,6 @@ def ising_box_runner(idx, T, max_epochs, batch_size, freq_print, genom, lr, weig
         valid_loss, valid_mutual = mice.valid_one_epoch(window_size=window_size, epoch=epoch, valid_losses=valid_losses, model=model, data_loader=loader)
         valid_losses.append(valid_mutual.cpu().detach().numpy())
         
-        # lr_scheduler(mice.lin_adve_running(epoch=epoch, data=valid_losses, window_size=window_size))
-        # early_stopping(mice.lin_ave_running(epoch=epoch, data=valid_losses, window_size=window_size))
         lr_scheduler(valid_losses[-1])
         if epoch > 300:
             early_stopping(valid_losses[-1])
@@ -103,8 +97,6 @@ def ising_box_runner(idx, T, max_epochs, batch_size, freq_print, genom, lr, weig
             print(f'\nMI for train {train_losses[-1]}, val {valid_losses[-1]} at step {epoch}')
         
     torch.save(model.state_dict(), PATH)
-    # train_losses = mice.exp_ave(data=train_losses)
-    # valid_losses = mice.exp_ave(data=valid_losses)
     mice.logger(f'MI train for ising, T = {T} is: {train_losses[-1]:.2f}', flag_message=2)
     mice.ising_fig(num=0, genom=genom, T=T, train_losses=train_losses, valid_losses=valid_losses)
     mi_num_box_dependant.append(train_losses[-1])
