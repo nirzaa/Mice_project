@@ -1,0 +1,7 @@
+LAMMPS (27 Oct 2021)
+echo both
+
+include		in.partitions
+variable p_id world   0 # 1 2 3 4 5
+log 		log.lammps.${p_id} append
+log 		log.lammps.0 append
