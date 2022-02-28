@@ -1,0 +1,1 @@
+ERROR on proc 0: Cannot open input script lammps-equilibration.in: No such file or directory (../lammps.cpp:518)

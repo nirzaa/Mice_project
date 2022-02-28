@@ -1,0 +1,121 @@
+import mice.main.box_menu
+
+box_runner.max_epochs = 5e4
+box_runner.batch_size = 32
+box_runner.freq_print = 1e2
+box_runner.genom = 'sandnet3d'
+box_runner.lr = 1e-3
+box_runner.weight_decay = 1e-4
+box_runner.box_frac = 0.5
+box_runner.window_size = 10
+box_runner.num_samples = 8e2
+box_runner.transfer_epochs = 5e4
+# box_caller.box_sizes = [6, 8, 10, 12]
+
+box_temp_fig_running.figsize = (12, 6)
+box_temp_fig_running.genom = 'sandnet3d'
+
+box_temp_fig.figsize = (12, 6)
+box_temp_fig.genom = 'sandnet3d'
+
+#======================#
+
+import mice.main.box_menu_ising
+
+ising_box_runner.num_samples = 8e2
+ising_box_runner.max_epochs = 3e3
+ising_box_runner.transfer_epochs = 3e3
+ising_box_runner.batch_size = 32
+ising_box_runner.freq_print = 1e1
+ising_box_runner.genom = 'sandnet'
+ising_temp_fig.genom = 'sandnet'
+ising_temp_fig_running.genom = 'sandnet'
+ising_box_runner.lr = 1e-3
+ising_box_runner.weight_decay = 1e-4
+ising_box_runner.window_size = 10
+
+#=======================#
+
+import mice.utils.my_utils
+
+lattices_generator_h5py.num_samples = 4e4
+lattices_generator_h5py.samples_per_snapshot = 1e0
+
+lattices_generator.num_samples = 8e2
+lattices_generator.samples_per_snapshot = 1e2
+boxes_maker.flag = 0 # 2 - from data.h5 || 1 - random || 2 - log2 
+logger.mod = 0 # mod 0 : prints both || mod 1 : prints only output || mod 2 : prints only to file
+box_fig.figsize = (12, 6)
+box_fig_together.figsize = (12, 6)
+box_fig_running.figsize = (12, 6)
+entropy_fig.figsize = (12, 6)
+entropy_fig_together.figsize = (12, 6)
+entropy_fig_running.figsize = (12, 6)
+exp_ave.window_frac = 0.1
+lin_ave.window_frac = 0.1
+ising_temp_fig.figsize = (12,6)
+ising_temp_fig_running.figsize = (12,6)
+ising_fig.figsize = (12, 6)
+
+#======================#
+
+import bin.load_data
+
+#3000*256=768000
+#400000*256=10240000
+file_load.number_lines = 10240000
+
+#=======================#
+
+import mice.main.entropy_menu
+
+# entropy_runner.num_boxes = 10
+entropy_runner.max_epochs = 5e4
+entropy_runner.transfer_epochs = 5e4
+entropy_runner.genom = 'sandnet3d'
+entropy_runner.lr = 1e-3
+entropy_runner.weight_decay = 1e-4
+entropy_runner.batch_size = 32
+entropy_runner.freq_print = 1e2
+entropy_runner.num_samples = 8e2
+
+#=======================#
+
+import mice.main.entropy_menu_sweep
+
+entropy_run.max_epochs = 4e4
+entropy_run.transfer_epochs = 4e4
+entropy_run.genom = 'sandnet3d'
+entropy_run.weight_decay = 1e-4
+entropy_run.freq_print = 1e2
+entropy_run.num_samples = 8e2
+
+#=======================#
+
+import mice.main.sweep_func
+
+sweep_entropy_run.max_epochs = 1e5
+sweep_entropy_run.transfer_epochs = 1e5
+sweep_entropy_run.genom = 'sandnet3d'
+sweep_entropy_run.weight_decay = 1e-4
+sweep_entropy_run.freq_print = 1e2
+sweep_entropy_run.num_samples = 8e2
+
+#=======================#
+
+import mice.ising_const.ising_script
+
+ising_runner.num_isings = 7e5
+ising_runner.dims = (1, 16, 8)
+ising_runner.J = 1
+
+#=======================#
+
+import mice.utils.pytorch_modules
+
+LRScheduler.patience = 300
+LRScheduler.min_lr = 1e-4
+LRScheduler.factor = 0.5
+EarlyStopping.patience = 600
+EarlyStopping.min_delta = 0
+EarlyStopping.verbose = False

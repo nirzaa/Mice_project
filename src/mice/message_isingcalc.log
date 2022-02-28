@@ -1,0 +1,11 @@
+==== log file for the Mutual Information for ising ====
+
+
+0 .  MI train for num boxes, num_boxes = 4 is: 0.00 
+
+1 .  MI train for num boxes, num_boxes = 6 is: 0.12 
+
+2 .  MI train for num boxes, num_boxes = 18 is: 5.68 
+
+3 .  MI train for num boxes, num_boxes = 25 is: 6.51 
+

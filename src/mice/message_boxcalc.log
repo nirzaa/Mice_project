@@ -1,0 +1,11 @@
+==== log file for the Mutual Information for different number of boxes ====
+
+We have 0 runs in total
+
+
+0 .  MI train for num boxes, num_boxes = 4 is: 0.00 
+
+1 .  MI train for num boxes, num_boxes = 6 is: 0.15 
+
+2 .  MI train for num boxes, num_boxes = 8 is: 0.14 
+
