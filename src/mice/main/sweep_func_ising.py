@@ -28,10 +28,10 @@ def sweep_wandb_ising(num_boxes, idx, comb, number_combinations):
             t = int(t)
         else:
             t = round(t, 2)
+            t = float(t)
         T_list.append(t)
     print('The temperatures are:')
     print(T_list)
-    T_list = json.dumps(T_list)
     wandb.login()
 
     sweep_config = {
@@ -50,7 +50,7 @@ def sweep_wandb_ising(num_boxes, idx, comb, number_combinations):
         'values': [batch_size]
         },
     'Temperature': {
-          'values': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4]
+        'values': T_list
         },
     }
     
@@ -170,6 +170,12 @@ def sweep_ising_run(max_epochs, freq_print, genom, weight_decay, num_samples, tr
             train_losses_exp = list(mice.exp_ave(data=train_losses_exp))
             valid_losses_exp = list(mice.exp_ave(data=valid_losses_exp))
 
+            if epoch > 1e3:
+                early_stopping(train_losses_exp[-1])
+                if early_stopping.early_stop:
+                    break
+                elif epoch > 2000 and train_losses_exp[-1] < 1e-6:
+                    break
             if epoch > 1e5:
                 lr = lr_scheduler(train_losses_exp[-1]).param_groups[0]["lr"]
                 early_stopping(train_losses_exp[-1])
@@ -188,21 +194,15 @@ def sweep_ising_run(max_epochs, freq_print, genom, weight_decay, num_samples, tr
         torch.save(model.state_dict(), PATH)
 
         wandb.save("model.onnx")
-        train_losses = mice.exp_ave(data=train_losses)
-        valid_losses = mice.exp_ave(data=valid_losses)
-        train_losses = mice.exp_ave(data=train_losses)
-        valid_losses = mice.exp_ave(data=valid_losses)
-        mi_entropy_dependant.append(train_losses[-1])
-        mi_entropy_dependant_valid.append(valid_losses[-1])
-        mice.logger(f'The MI train for ({i}, {j}, {k}) box is: {train_losses[-1]:.2f}', number_combinations=number_combinations, flag_message=1, num_boxes=num_boxes)
-    print('take a look:')
-    print(train_losses[-1], valid_losses[-1], genom)
-    return train_losses[-1], valid_losses[-1], genom
+
+        return None
+
+        
 
 def run_sweep_ising():
     num_boxes = 16
     limit = 5096
-
+    
     my_root = int(np.floor(np.log2(num_boxes)))
     temporal_combinations = list(combinations_with_replacement([2 << expo for expo in range(0, my_root)], 3))
     temporal_combinations.sort(key=lambda x: math.prod(x))
@@ -217,9 +217,7 @@ def run_sweep_ising():
     for idx, (i, j, k) in enumerate(my_combinations):
         x_labels.append(str((i, j, k)))
         comb = (i, j, k)
-        train_loss, valid_loss, genom = mice.sweep_wandb_ising(num_boxes=num_boxes, idx=idx, comb=comb, number_combinations=number_combinations)
-        mi_entropy_dependant.append(train_loss)
-        mi_entropy_dependant_valid.append(valid_loss)
+        mice.sweep_wandb_ising(num_boxes=num_boxes, idx=idx, comb=comb, number_combinations=number_combinations)
 
 def input_func_ising():
     parser = argparse.ArgumentParser(description='input_data')
@@ -230,7 +228,7 @@ def input_func_ising():
 if __name__ == '__main__':
     args = mice.input_func()
     T = args.T
-    print(f'Working on T = {T}')
+    # print(f'Working on T = {T}')
     # mice.sand()
     mice.run_sweep_ising()
     
