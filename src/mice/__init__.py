@@ -79,7 +79,6 @@ from mice.main.sweep_func_ising import (
     sweep_ising_run,
     run_sweep_ising,
     input_func_ising,
-    sand
 )
 
 from bin.load_data import (
