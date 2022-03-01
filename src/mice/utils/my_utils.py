@@ -115,6 +115,9 @@ def mi_model(genom, n_epochs, max_epochs, input_size=100):
     elif genom == 'sandnet3d':
         model = mice.Sandnet3d(input_size=input_size)
         model.to(device)
+    elif genom == 'sandnet2d':
+        model = mice.Sandnet2d(input_size=input_size)
+        model.to(device)
 
     if n_epochs != max_epochs and genom == 'linear':
         print(f'==== linear ====\nWeights have been loaded!\nWe are using {gpu_name}')
@@ -174,13 +177,24 @@ def mi_model(genom, n_epochs, max_epochs, input_size=100):
     if n_epochs != max_epochs and genom == 'sandnet3d':
         print(f'==== sandnet3d ====\nWeights have been loaded!\nWe are using {gpu_name}')
         PATH = os.path.join(weights_path, 'sandnet3d_model_weights.pth')
-        model = mice.Sandnet()
+        model = mice.Sandnet3d()
         model.load_state_dict(torch.load(PATH), strict=False)
         model.eval()
         model.to(device)
     elif n_epochs == max_epochs and genom == 'sandnet3d':
         PATH = os.path.join(weights_path, 'sandnet3d_model_weights.pth')
         print(f'==== sandnet3d ====\nThere are no weights, this is the first run!\nWe are using {gpu_name}')
+
+    if n_epochs != max_epochs and genom == 'sandnet2d':
+        print(f'==== sandnet2d ====\nWeights have been loaded!\nWe are using {gpu_name}')
+        PATH = os.path.join(weights_path, 'sandnet2d_model_weights.pth')
+        model = mice.Sandnet()
+        model.load_state_dict(torch.load(PATH), strict=False)
+        model.eval()
+        model.to(device)
+    elif n_epochs == max_epochs and genom == 'sandnet2d':
+        PATH = os.path.join(weights_path, 'sandnet2d_model_weights.pth')
+        print(f'==== sandnet2d ====\nThere are no weights, this is the first run!\nWe are using {gpu_name}')
 
 
     return model
@@ -344,7 +358,7 @@ def lattice_splitter(lattices, axis):
     
     left_lattices, right_lattices = [], []
     for lattice in lattices:
-        left_lattice, right_lattice = np.split(lattice, 2, axis=axis)
+        left_lattice, right_lattice = np.split(lattice, 2, axis=2)
         left_lattices.append(left_lattice)
         right_lattices.append(right_lattice)
     return np.array(left_lattices), np.array(right_lattices)
