@@ -103,6 +103,24 @@ sweep_entropy_run.num_samples = 8e2
 
 #=======================#
 
+import mice.main.sweep_func_ising
+
+sweep_ising_run.max_epochs = 1e5
+sweep_ising_run.transfer_epochs = 1e5
+sweep_ising_run.genom = 'sandnet2d'
+sweep_ising_run.weight_decay = 1e-4
+sweep_ising_run.freq_print = 1e2
+sweep_ising_run.num_samples = 8e2
+
+sand.max_epochs = 1e5
+sand.transfer_epochs = 1e5
+sand.genom = 'sandnet2d'
+sand.weight_decay = 1e-4
+sand.freq_print = 1e2
+sand.num_samples = 7e2
+
+#=======================#
+
 import mice.ising_const.ising_script
 
 ising_runner.num_isings = 7e5

@@ -7,7 +7,8 @@ from mice.neural_net.architectures import (
     Model,
     Modely,
     Sandnet,
-    Sandnet3d
+    Sandnet3d,
+    Sandnet2d
 )
 
 from mice.utils.my_utils import (
@@ -71,6 +72,14 @@ from mice.main.sweep_func import (
     sweep_entropy_run,
     run_sweep,
     input_func
+)
+
+from mice.main.sweep_func_ising import (
+    sweep_wandb_ising,
+    sweep_ising_run,
+    run_sweep_ising,
+    input_func_ising,
+    sand
 )
 
 from bin.load_data import (

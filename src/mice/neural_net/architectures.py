@@ -164,3 +164,27 @@ class Sandnet3d(nn.Module):
         output = self.fc2(output)
 
         return output
+
+class Sandnet2d(nn.Module):
+    '''
+    The real fully conventional architecture of the neural net
+    '''
+    def __init__(self, input_size=576):
+        super(Sandnet2d, self).__init__()
+
+        self.input_size = input_size
+        self.layer1 = nn.Conv2d(in_channels=1, out_channels=8, kernel_size=2, stride=1, padding=0,)
+        self.layer2 = nn.Conv2d(in_channels=8, out_channels=16, kernel_size=2, stride=1, padding=0,)
+        self.layer3 = nn.MaxPool2d(kernel_size=2, stride=2, padding=0,)
+        self.drop_out = nn.Dropout(p=0.3)
+        self.fc1 = nn.Linear(input_size , int(input_size/2))
+        self.fc2 = nn.Linear(int(input_size/2), 1)
+
+    def forward(self, data):
+        output = F.relu(self.layer1(data))
+        output = output.reshape(output.size(0), -1)
+        output = self.fc1(output)
+        output = F.relu(output)
+        output = self.fc2(output)
+
+        return output
