@@ -1,6 +1,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 import torch
+import numpy as np
 
 class MiceConv(nn.Module):
     def __init__(self, input_size=576):
@@ -182,6 +183,38 @@ class Sandnet2d(nn.Module):
 
     def forward(self, data):
         output = F.relu(self.layer1(data))
+        output = output.reshape(output.size(0), -1)
+        output = self.fc1(output)
+        output = F.relu(output)
+        output = self.fc2(output)
+
+        return output
+
+class Sandnet3d_emb(nn.Module):
+    '''
+    The real fully conventional architecture of the neural net
+    '''
+    def __init__(self, input_size=576, sizes=(10,10,10)):
+        super(Sandnet3d_emb, self).__init__()
+
+        size = 8 * (sizes[0]-5) * (sizes[1]-5) * (sizes[2]-5)
+        self.input_size = input_size
+        self.layer1 = nn.Conv3d(in_channels=1, out_channels=8, kernel_size=2, stride=1, padding=0,)
+        self.layer2 = nn.Conv3d(in_channels=8, out_channels=16, kernel_size=2, stride=1, padding=0,)
+        self.layer3 = nn.Conv3d(in_channels=16, out_channels=32, kernel_size=2, stride=1, padding=0,)
+        self.layer4 = nn.Conv3d(in_channels=32, out_channels=16, kernel_size=2, stride=1, padding=0,)
+        self.layer5 = nn.Conv3d(in_channels=16, out_channels=8, kernel_size=2, stride=1, padding=0,)
+        self.layer6 = nn.MaxPool3d(kernel_size=2, stride=2, padding=0,)
+        self.drop_out = nn.Dropout(p=0.3)
+        self.fc1 = nn.Linear(size , int(size/2))
+        self.fc2 = nn.Linear(int(size/2), 1)
+
+    def forward(self, data):
+        output = F.relu(self.layer1(data))
+        output = F.relu(self.layer2(output))
+        output = F.relu(self.layer3(output))
+        output = F.relu(self.layer4(output))
+        output = F.relu(self.layer5(output))
         output = output.reshape(output.size(0), -1)
         output = self.fc1(output)
         output = F.relu(output)

@@ -96,7 +96,7 @@ import mice.main.sweep_func
 
 sweep_entropy_run.max_epochs = 1e5
 sweep_entropy_run.transfer_epochs = 1e5
-sweep_entropy_run.genom = 'sandnet3d'
+sweep_entropy_run.genom = 'sandnet3d_emb'
 sweep_entropy_run.weight_decay = 1e-4
 sweep_entropy_run.freq_print = 1e2
 sweep_entropy_run.num_samples = 8e2

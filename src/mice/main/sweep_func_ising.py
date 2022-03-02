@@ -66,7 +66,7 @@ def sweep_wandb_ising(num_boxes, idx, comb, number_combinations):
         'value': number_combinations},
     })
 
-    sweep_id = wandb.sweep(sweep_config, project="mice project ising")
+    sweep_id = wandb.sweep(sweep_config, project="mice project ising sand")
     wandb.agent(sweep_id, sweep_ising_run)
 
 @gin.configurable
@@ -87,7 +87,7 @@ def sweep_ising_run(max_epochs, freq_print, genom, weight_decay, num_samples, tr
     return:
     None
     '''
-    with wandb.init(project="mice project ising", config=config):
+    with wandb.init(project="mice project ising sand", config=config):
         config = wandb.config
         lr, batch_size = config.lr, config.batch_size
         T, num_boxes, idx, comb, number_combinations = config.Temperature, config.num_boxes, config.idx, config.comb, config.number_combinations
@@ -129,7 +129,7 @@ def sweep_ising_run(max_epochs, freq_print, genom, weight_decay, num_samples, tr
         print(f'The size of the small boxes is: {i}x{j}x{k}\n'
                 f'Therefore we cut on the {axis} axis\n'
                 f'Building the boxes... we are going to start training...')
-        axis += 1
+        axis += 2
         epochs = (n_epochs // (cntr+1))
         epochs = int(np.ceil((n_epochs * 2) // ((i*j*k)**(1/3))))
         epochs = max(epochs, 1)

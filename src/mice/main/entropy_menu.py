@@ -40,6 +40,7 @@ def entropy_runner(num_boxes, idx, comb, number_combinations, max_epochs, batch_
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     R = np.random.RandomState(seed=0)
     
+    # num_frames = mice.frames()
     cntr = 0
     mi_entropy_dependant = []
     mi_entropy_dependant_valid = []
@@ -47,6 +48,7 @@ def entropy_runner(num_boxes, idx, comb, number_combinations, max_epochs, batch_
     x_labels = []
     saved_directory = os.path.join('./data', f'{num_boxes}')
  
+    # for idx, (i, j, k) in enumerate(my_combinations):
     if idx == 0: n_epochs = max_epochs
     elif idx != 0: n_epochs = transfer_epochs
 
@@ -63,11 +65,13 @@ def entropy_runner(num_boxes, idx, comb, number_combinations, max_epochs, batch_
     sizes = (i, j, k)
     with h5py.File(os.path.join(saved_directory, f'{i}_{j}_{k}', 'data.h5'), "r") as hf:
         lattices = np.array(hf.get('dataset_1'))
+    # lattices = mice.lattices_generator(R=R, num_frames=num_frames, num_boxes=num_boxes, sizes=sizes)
     
     list_ising = lattices.copy()
     x_size = list_ising[0].shape[1]
     y_size = list_ising[0].shape[2]
     z_size = list_ising[0].shape[3]
+    # input_size = x_size * y_size * z_size
     input_size = int(8 * ((x_size-2)/1+1) * ((y_size-2)/1+1) * ((z_size-2)/1+1))
     model = mice.mi_model(genom=genom, n_epochs=n_epochs, max_epochs=max_epochs, input_size=input_size)
     optimizer = Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
@@ -91,7 +95,8 @@ def entropy_runner(num_boxes, idx, comb, number_combinations, max_epochs, batch_
     with wandb.init(project="mice project", config=config):
         wandb.watch(model, mice.my_criterion, log="all", log_freq=1000)
         for epoch in tqdm(range(int(n_epochs))):
-            
+            # lattices = mice.lattices_generator(R=R, num_frames=num_frames, num_boxes=num_boxes, sizes=sizes)
+            # list_ising = lattices.copy()
             place = random.sample(range(len(list_ising)), k=int(num_samples))
             lattices = np.array(list_ising)[place]
             left_lattices, right_lattices = mice.lattice_splitter(lattices=lattices, axis=axis)
@@ -137,6 +142,8 @@ def entropy_runner(num_boxes, idx, comb, number_combinations, max_epochs, batch_
         cntr += 1
         x_labels.append(str((i, j, k)))
         torch.save(model.state_dict(), PATH)
+        # dummy_input = torch.randn(10, 3, 224, 224, device="cuda")
+        # torch.onnx.export(model, dummy_input, "model.onnx")
         wandb.save("model.onnx")
         train_losses = mice.exp_ave(data=train_losses)
         valid_losses = mice.exp_ave(data=valid_losses)
@@ -157,8 +164,10 @@ if __name__ == '__main__':
     temporal_combinations = list(combinations_with_replacement([2 << expo for expo in range(0, my_root)], 3))
     temporal_combinations.sort(key=lambda x: math.prod(x))
     print('Our combinations are:')
+    # temporal_combinations = [i for i in my_combinations if math.prod(i) < limit]
     my_combinations = list()
     for i in temporal_combinations:
+        # if (i[0] >= 4 and i [1] >= 4) and (i[0] <= 16 and i[1] <= 16):
         if (i[0] == 15 and i [1] == 15 and i [2] == 15):
             my_combinations.append(i)
     my_combinations.append((10,10,10))
@@ -174,4 +183,6 @@ if __name__ == '__main__':
         mi_entropy_dependant.append(train_loss)
         mi_entropy_dependant_valid.append(valid_loss)
         mice.entropy_fig_running(x_labels=x_labels, mi_entropy_dependant=mi_entropy_dependant, mi_entropy_dependant_valid=mi_entropy_dependant_valid, genom=genom)
-    
+    # mice.entropy_fig_together(x_labels=x_labels, mi_entropy_dependant=mi_entropy_dependant, mi_entropy_dependant_valid=mi_entropy_dependant_valid, genom=genom)
+    # mi_entropy_dependant = np.array(mi_entropy_dependant)
+    # mice.logger(f'The total MI train is: {mi_entropy_dependant.sum():.2f}', number_combinations=number_combinations, flag_message=1)

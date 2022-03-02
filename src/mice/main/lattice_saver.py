@@ -8,6 +8,7 @@ from itertools import combinations_with_replacement
 import h5py
 import math
 import argparse
+import matplotlib.pyplot as plt
 
 def lat_saver(T, num_samples, samples_per_snapshot, num_boxes, limit):
     R = np.random.RandomState(seed=0)
@@ -16,9 +17,11 @@ def lat_saver(T, num_samples, samples_per_snapshot, num_boxes, limit):
     temporal_combinations = list(combinations_with_replacement([2 << expo for expo in range(0, my_root)], 3))
     temporal_combinations.sort(key=lambda x: math.prod(x))
     print('Our combinations are:')
-
+    # temporal_combinations = [i for i in my_combinations if math.prod(i) < limit]
+    # my_combinations = temporal_combinations
     my_combinations = list()
     for i in temporal_combinations:
+        # if (i[0] >= 2 and i [1] >= 2 and i [2] >= 2) and (i[0] < 1024 and i [1] < 1024 and i [2] < 1024):
         if (i[0] == 20 and i [1] == 20 and i [2] == 20):
             my_combinations.append(i)
     my_combinations.append((10,10,10))
@@ -72,6 +75,35 @@ def lat_saver(T, num_samples, samples_per_snapshot, num_boxes, limit):
                 k = R.randint(0, z_steps+1)
 
             lattices.append(np.expand_dims(my_tensor[i:i+x_size, j:j+y_size, k:k + z_size], axis=0))
+            # ====================
+            fig = plt.figure(num=0, figsize=(10, 10))
+            plt.clf()
+            ax = fig.add_subplot(projection='3d')
+            for ii in range(my_tensor.shape[0]):
+                for jj in range(my_tensor.shape[1]):
+                    for kk in range(my_tensor.shape[2]):
+                        if my_tensor[ii, jj, kk] == 1:
+                            ax.scatter(ii, jj, kk)
+            ax.set_xlim3d((0, my_tensor.shape[0]))
+            ax.set_ylim3d((0, my_tensor.shape[1]))
+            ax.set_zlim3d((0, my_tensor.shape[2]))
+            plt.savefig('./figs/tensor_fig.png')
+
+            lat = np.zeros_like(my_tensor)
+            lat[i:i+x_size, j:j+y_size, k:k + z_size] = my_tensor[i:i+x_size, j:j+y_size, k:k + z_size]
+            fig = plt.figure(num=1, figsize=(10, 10))
+            plt.clf()
+            ax = fig.add_subplot(projection='3d')
+            for ii in range(lat.shape[0]):
+                for jj in range(lat.shape[1]):
+                    for kk in range(lat.shape[2]):
+                        if lat[ii, jj, kk] == 1:
+                            ax.scatter(ii, jj, kk)
+            ax.set_xlim3d((0, my_tensor.shape[0]))
+            ax.set_ylim3d((0, my_tensor.shape[1]))
+            ax.set_zlim3d((0, my_tensor.shape[2]))
+            plt.savefig('./figs/lattices_fig.png')
+            # ====================
             my_tensor = np.zeros((num_boxes, num_boxes, num_boxes))
             cntr += 1
             if cntr % (samples_per_snapshot) == 0:
@@ -97,6 +129,7 @@ def lat_saver(T, num_samples, samples_per_snapshot, num_boxes, limit):
         with h5py.File(os.path.join(saved_directory, 'data.h5'), "w") as hf:
             hf.create_dataset('dataset_1', data=np.array(lattices))
     
+    # saved_directory = os.path.join('./data', f'{num_boxes}')
     with open(os.path.join(saved_directory, 'explain'), 'w') as f:
         f.write(f'Metadata regarding the data:\n')
         f.write('='*30)
@@ -106,9 +139,10 @@ def lat_saver(T, num_samples, samples_per_snapshot, num_boxes, limit):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='input_data')
-    parser.add_argument('--T', type=int, default=400, metavar='N', help='The temperature')
+    parser.add_argument('--T', type=int, default=850, metavar='N', help='The temperature')
     args = parser.parse_args()
     T = args.T
+    print(f'working on T = {T}')
 
     num_samples = 4e4
     samples_per_snapshot = 1e0

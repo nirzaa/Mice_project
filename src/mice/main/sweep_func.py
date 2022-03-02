@@ -38,12 +38,13 @@ def sweep_wandb_sweep(T, num_boxes, idx, comb, number_combinations):
     'batch_size': {
         'values': [batch_size]
         },
+    'Temperature': {
+        'values': [700,750,800,850,900]
+        },
     }
     
     sweep_config['parameters'] = parameters_dict
     parameters_dict.update({
-    'Temperature': {
-        'value': T},
     'num_boxes': {
         'value': num_boxes},
     'idx': {
@@ -54,7 +55,7 @@ def sweep_wandb_sweep(T, num_boxes, idx, comb, number_combinations):
         'value': number_combinations},
     })
 
-    sweep_id = wandb.sweep(sweep_config, project="mice project")
+    sweep_id = wandb.sweep(sweep_config, project="mice project embedding")
     wandb.agent(sweep_id, sweep_entropy_run)
 
 @gin.configurable
@@ -75,7 +76,8 @@ def sweep_entropy_run(max_epochs, freq_print, genom, weight_decay, num_samples, 
     return:
     None
     '''
-    with wandb.init(project="mice project", config=config):
+    with wandb.init(project="mice project embedding", config=config):
+        # wandb.watch(model, mice.my_criterion, log="all", log_freq=1000)
         config = wandb.config
         lr, batch_size = config.lr, config.batch_size
         T, num_boxes, idx, comb, number_combinations = config.Temperature, config.num_boxes, config.idx, config.comb, config.number_combinations
@@ -85,6 +87,7 @@ def sweep_entropy_run(max_epochs, freq_print, genom, weight_decay, num_samples, 
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         R = np.random.RandomState(seed=0)
         
+        # num_frames = mice.frames()
         cntr = 0
         mi_entropy_dependant = []
         mi_entropy_dependant_valid = []
@@ -92,6 +95,7 @@ def sweep_entropy_run(max_epochs, freq_print, genom, weight_decay, num_samples, 
         x_labels = []
         saved_directory = os.path.join('./data/dump_files/Aluminum/pure_liquid', f'{T}', str(num_boxes))
     
+        # for idx, (i, j, k) in enumerate(my_combinations):
         if idx == 0: n_epochs = max_epochs
         elif idx != 0: n_epochs = transfer_epochs
         
@@ -99,13 +103,15 @@ def sweep_entropy_run(max_epochs, freq_print, genom, weight_decay, num_samples, 
         sizes = (i, j, k)
         with h5py.File(os.path.join(saved_directory, f'{i}_{j}_{k}', 'data.h5'), "r") as hf:
             lattices = np.array(hf.get('dataset_1'))
+        # lattices = mice.lattices_generator(R=R, num_frames=num_frames, num_boxes=num_boxes, sizes=sizes)
         
         list_ising = lattices.copy()
         x_size = list_ising[0].shape[1]
         y_size = list_ising[0].shape[2]
         z_size = list_ising[0].shape[3]
+        # input_size = x_size * y_size * z_size
         input_size = int(8 * ((x_size-2)/1+1) * ((y_size-2)/1+1) * ((z_size-2)/1+1))
-        model = mice.mi_model(genom=genom, n_epochs=n_epochs, max_epochs=max_epochs, input_size=input_size)
+        model = mice.mi_model(genom=genom, n_epochs=n_epochs, max_epochs=max_epochs, input_size=input_size, sizes=sizes)
         optimizer = Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
         lr_scheduler = mice.LRScheduler(optimizer)
         early_stopping = mice.EarlyStopping()
@@ -120,20 +126,19 @@ def sweep_entropy_run(max_epochs, freq_print, genom, weight_decay, num_samples, 
         epochs = (n_epochs // (cntr+1))
         epochs = int(np.ceil((n_epochs * 2) // ((i*j*k)**(1/3))))
         epochs = max(epochs, 1)
-        model = mice.mi_model(genom=genom, n_epochs=n_epochs, max_epochs=max_epochs, input_size=input_size)
+        model = mice.mi_model(genom=genom, n_epochs=n_epochs, max_epochs=max_epochs, input_size=input_size, sizes=sizes)
         optimizer = Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
         train_losses = []
         valid_losses = []
         wandb.watch(model, mice.my_criterion, log="all", log_freq=1000)
         for epoch in tqdm(range(int(n_epochs))):
-
             place = random.sample(range(len(list_ising)), k=int(num_samples))
             lattices = np.array(list_ising)[place]
             left_lattices, right_lattices = mice.lattice_splitter(lattices=lattices, axis=axis)
-            joint_lattices = np.concatenate((left_lattices, right_lattices), axis=axis + 1)
+            joint_lattices = np.concatenate((left_lattices, right_lattices), axis=axis+1)
             right_lattices_random = right_lattices.copy()
             R.shuffle(right_lattices_random)
-            product_lattices = np.concatenate((left_lattices, right_lattices_random), axis=axis + 1)
+            product_lattices = np.concatenate((left_lattices, right_lattices_random), axis=axis+1)
             joint_lattices, joint_valid, product_lattices, product_valid = train_test_split(joint_lattices, product_lattices,
                                                                                             test_size=0.2, random_state=42)
             AB_joint, AB_product = torch.tensor(joint_lattices), torch.tensor(product_lattices)
@@ -173,7 +178,8 @@ def sweep_entropy_run(max_epochs, freq_print, genom, weight_decay, num_samples, 
         cntr += 1
         x_labels.append(str((i, j, k)))
         torch.save(model.state_dict(), PATH)
-
+        # dummy_input = torch.randn(10, 3, 224, 224, device="cuda")
+        # torch.onnx.export(model, dummy_input, "model.onnx")
         wandb.save("model.onnx")
         train_losses = mice.exp_ave(data=train_losses)
         valid_losses = mice.exp_ave(data=valid_losses)
@@ -181,6 +187,7 @@ def sweep_entropy_run(max_epochs, freq_print, genom, weight_decay, num_samples, 
         valid_losses = mice.exp_ave(data=valid_losses)
         mi_entropy_dependant.append(train_losses[-1])
         mi_entropy_dependant_valid.append(valid_losses[-1])
+        # mice.entropy_fig(num=cntr, genom=genom, sizes=sizes, train_losses=train_losses, valid_losses=valid_losses)
         mice.logger(f'The MI train for ({i}, {j}, {k}) box is: {train_losses[-1]:.2f}', number_combinations=number_combinations, flag_message=1, num_boxes=num_boxes)
     print('take a look:')
     print(train_losses[-1], valid_losses[-1], genom)
@@ -194,6 +201,7 @@ def run_sweep(T=400):
     temporal_combinations = list(combinations_with_replacement([2 << expo for expo in range(0, my_root)], 3))
     temporal_combinations.sort(key=lambda x: math.prod(x))
     print('Our combinations are:')
+    # temporal_combinations = [i for i in my_combinations if math.prod(i) < limit]
     my_combinations = list()
     my_combinations.append((10,10,10))
     mice.print_combinations(my_combinations)
@@ -210,12 +218,13 @@ def run_sweep(T=400):
 
 def input_func():
     parser = argparse.ArgumentParser(description='input_data')
-    parser.add_argument('--T', type=int, default=400, metavar='N', help='The temperature')
+    parser.add_argument('--T', type=int, default=800, metavar='N', help='The temperature')
     args = parser.parse_args()
     return args
 
 if __name__ == '__main__':
     args = mice.input_func()
     T = args.T
-    print(f'Working on T = {T}')
+    # print(f'Working on T = {T}')
+    # mice.sweep_entropy_run()
     mice.run_sweep(T=T)

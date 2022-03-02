@@ -8,7 +8,8 @@ from mice.neural_net.architectures import (
     Modely,
     Sandnet,
     Sandnet3d,
-    Sandnet2d
+    Sandnet2d,
+    Sandnet3d_emb
 )
 
 from mice.utils.my_utils import (
