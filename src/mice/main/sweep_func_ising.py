@@ -129,7 +129,6 @@ def sweep_ising_run(max_epochs, freq_print, genom, weight_decay, num_samples, tr
         print(f'The size of the small boxes is: {i}x{j}x{k}\n'
                 f'Therefore we cut on the {axis} axis\n'
                 f'Building the boxes... we are going to start training...')
-        axis += 2
         epochs = (n_epochs // (cntr+1))
         epochs = int(np.ceil((n_epochs * 2) // ((i*j*k)**(1/3))))
         epochs = max(epochs, 1)
