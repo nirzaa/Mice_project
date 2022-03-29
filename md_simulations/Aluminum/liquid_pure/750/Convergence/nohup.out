@@ -1,0 +1,61 @@
+PLUMED: PLUMED is starting
+PLUMED: Version: 2.7.1 (git: Unknown) compiled on Nov 23 2021 at 16:02:17
+PLUMED: Please cite these papers when using PLUMED [1][2]
+PLUMED: For further information see the PLUMED web page at http://www.plumed.org
+PLUMED: Root: /home/nirz/lmp2021/lib/plumed/plumed-2.7.1/
+PLUMED: For installed feature, see /home/nirz/lmp2021/lib/plumed/plumed-2.7.1//src/config/config.txt
+PLUMED: Molecular dynamics engine: 
+PLUMED: Precision of reals: 8
+PLUMED: Running over 1 node
+PLUMED: Number of threads: 1
+PLUMED: Cache line size: 512
+PLUMED: Number of atoms: 1
+PLUMED: File suffix: 
+PLUMED: Timestep: 0.000000
+PLUMED: KbT has not been set by the MD engine
+PLUMED: It should be set by hand where needed
+PLUMED: Relevant bibliography:
+PLUMED:   [1] The PLUMED consortium, Nat. Methods 16, 670 (2019)
+PLUMED:   [2] Tribello, Bonomi, Branduardi, Camilloni, and Bussi, Comput. Phys. Commun. 185, 604 (2014)
+PLUMED: Please read and cite where appropriate!
+PLUMED: Finished setup
+PLUMED: Action FAKE
+PLUMED:   with label enthalpyPerAtom
+PLUMED: Action FAKE
+PLUMED:   with label s2
+PLUMED: Action FUNCSUMHILLS
+PLUMED:   with label @2
+PLUMED:   with arguments enthalpyPerAtom s2
+PLUMED:   Output format is %14.9f
+PLUMED:   hillsfile  : ../HILLS
+PLUMED:    
+PLUMED:   No boundaries defined: need to do a prescreening of hills 
+PLUMED:   doing serialread 
+PLUMED:   opening file ../HILLS
+PLUMED:   closing file ../HILLS
+PLUMED:   now total 1 kernels 
+PLUMED:   final chunk: now with 1 kernels  
+PLUMED:   found boundaries from hillsfile: 
+PLUMED:   found nbins in input, this overrides the automatic choice 
+PLUMED:   variable enthalpyPerAtom min: -302.325 max: -300.204 nbin: 200
+PLUMED:   variable s2 min: -2.83609 max: -2.12899 nbin: 200
+PLUMED:   done!
+PLUMED:    
+PLUMED:   Doing integration slices every 1000 kernels
+PLUMED:   mintozero: bias/histogram will be translated to have the minimum value equal to zero
+PLUMED:   output file for fes/bias  is :  fes_
+PLUMED: 
+PLUMED:   Now calculating...
+PLUMED: 
+PLUMED:   reading hills: 
+PLUMED:   doing serialread 
+PLUMED:   opening file ../HILLS
+PLUMED:   closing file ../HILLS
+PLUMED:   now total 1 kernels 
+PLUMED:   final chunk: now with 1 kernels  
+PLUMED: 
+PLUMED:   Writing full grid on file fes_0.dat 
+PLUMED:                                               Cycles        Total      Average      Minimum      Maximum
+PLUMED: 0 Summing hills                                    1     0.138657     0.138657     0.138657     0.138657
+PLUMED:                                               Cycles        Total      Average      Minimum      Maximum
+PLUMED:                                                    1     0.000096     0.000096     0.000096     0.000096
